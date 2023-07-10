@@ -1,0 +1,36 @@
+{
+  "broker": {
+    "host": "broker.emqx.io",
+    "mqtt_port": 1883,
+    "ws_port": 8083,
+    "mqtts_port": 8883,
+    "wss_port": 8084,
+    "username": "username",
+    "password": "password",
+    "deny_topics": [
+      "$SYS",
+      "#"
+    ]
+  },
+  "hosts": [
+    "1.1.1.1"
+  ],
+  "limit": {
+    "client_id_len": 1024,
+    "username_len": 65535,
+    "password_len": 65535,
+    "support_tls_versions": [
+      771,
+      772
+    ],
+    "unsupported_tls_versions": [
+      768,
+      769,
+      770
+    ],
+    "topic_level": 16,
+    "topic_len": 65535,
+    "payload_len": 1,
+    "connection": 1000
+  }
+}
