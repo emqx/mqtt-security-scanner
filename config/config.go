@@ -50,6 +50,7 @@ type Limit struct {
 	TopicLen               int      `json:"topic_len"`                // Length limit for MQTT topic
 	PayloadLen             int      `json:"payload_len"`              // Length limit for MQTT payload
 	Connection             int      `json:"connection"`               // Limit for the number of connections
+	Flapping               int      `json:"flapping"`                 // Limit for the number of flapping connections
 }
 
 // InitConfig function initializes the configuration by reading from the configuration file

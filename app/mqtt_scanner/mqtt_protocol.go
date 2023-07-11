@@ -26,7 +26,7 @@ func InvalidMQTTProtocolScanner(cfg *config.Config) (*config.ScanItem, error) {
 	}
 
 	if !ok {
-		si.Message = append(si.Message, "Invalid mqtt protocol connect successfully")
+		si.Message = append(si.Message, "Invalid MQTT protocol connect successfully")
 		return si, nil
 	}
 
@@ -38,7 +38,7 @@ func InvalidMQTTProtocolScanner(cfg *config.Config) (*config.ScanItem, error) {
 func InvalidWSProtocolScanner(cfg *config.Config) (*config.ScanItem, error) {
 	si := config.NewScanItem("Invalid Websocket Protocol")
 
-	// Check if MQTTS port accepts non-MQTT messages
+	// Check if MQTT over websocket port accepts non-MQTT messages
 	ok, err := checkDenyNonMQTTConnection(cfg.BrokerInfo.Host, cfg.BrokerInfo.WSPort)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func TLSVersionsScanner(cfg *config.Config) (*config.ScanItem, error) {
 // checkDenyNonMQTTConnection checks if the specified TCP port denies non-MQTT protocol connections
 // Under normal circumstances, the behavior of the EMQX broker's denial is to reply with a fin packet, corresponding to EOF
 func checkDenyNonMQTTConnection(host string, port int) (bool, error) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
+	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", host, port), 3*time.Second)
 	if err != nil {
 		return false, err
 	}

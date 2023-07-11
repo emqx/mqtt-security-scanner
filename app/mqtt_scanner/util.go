@@ -4,8 +4,6 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -30,10 +28,4 @@ func RandomString(length int) string {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
-}
-
-// VerifyMQTTConnection verifies if the MQTT client can establish a connection with the MQTT broker
-func VerifyMQTTConnection(client mqtt.Client) bool {
-	token := client.Connect()
-	return !(token.Wait() && token.Error() != nil)
 }
