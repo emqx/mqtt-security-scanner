@@ -28,6 +28,7 @@
       769,
       770
     ],
+    "flapping": 60,
     "topic_level": 16,
     "topic_len": 65535,
     "payload_len": 1,

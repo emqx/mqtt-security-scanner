@@ -8,9 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"mqtt-security-scanner/app/port_scanner"
-
 	"mqtt-security-scanner/app/mqtt_scanner"
+	"mqtt-security-scanner/app/port_scanner"
 	"mqtt-security-scanner/config"
 )
 
@@ -29,14 +28,15 @@ func main() {
 		// protocol related scanner
 		mqtt_scanner.InvalidMQTTProtocolScanner,
 		mqtt_scanner.InvalidWSProtocolScanner,
-		mqtt_scanner.TLSVersionsScanner,
+		//mqtt_scanner.TLSVersionsScanner,
 		// MQTT client related scanner
 		mqtt_scanner.MQTTClientAuthentication,
-		mqtt_scanner.MqttClientUsernameLength,
-		mqtt_scanner.MqttClientPasswordLength,
-		mqtt_scanner.MqttClientIDLength,
-		mqtt_scanner.MqttClientFlapping,
-		mqtt_scanner.MQTTClientConnection,
+		mqtt_scanner.MQTTClientUsernameLength,
+		mqtt_scanner.MQTTClientPasswordLength,
+		mqtt_scanner.MQTTClientIDLength,
+		mqtt_scanner.MQTTClientFlapping,
+		// TODO(hxc): put to the end of the list, because it will effect other scanners
+		//mqtt_scanner.MQTTClientConnection,
 		// MQTT message related scanner
 		mqtt_scanner.MQTTTopicLevel,
 		mqtt_scanner.MQTTTopicLength,
