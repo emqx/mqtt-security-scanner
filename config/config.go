@@ -30,6 +30,7 @@ type Config struct {
 }
 
 type BrokerInfo struct {
+	TLS        bool     `json:"tls"`         // Enable TLS checker or not
 	Host       string   `json:"host"`        // Broker's host address
 	MQTTPort   int      `json:"mqtt_port"`   // Port for MQTT protocol
 	MQTTSPort  int      `json:"mqtts_port"`  // Port for MQTT over SSL protocol
@@ -44,8 +45,8 @@ type Limit struct {
 	ClientIDLen            int      `json:"client_id_len"`            // Length limit for client ID
 	UsernameLen            int      `json:"username_len"`             // Length limit for username
 	PasswordLen            int      `json:"password_len"`             // Length limit for password
-	SupportTLSVersions     []uint16 `json:"support_tls_versions"`     // The list of supported TLS versions
-	UnsupportedTLSVersions []uint16 `json:"unsupported_tls_versions"` // The list of unsupported TLS versions
+	SupportTLSVersions     []string `json:"support_tls_versions"`     // The list of supported TLS versions
+	UnsupportedTLSVersions []string `json:"unsupported_tls_versions"` // The list of unsupported TLS versions
 	TopicLevel             int      `json:"topic_level"`              // Limit for topic levels
 	TopicLen               int      `json:"topic_len"`                // Length limit for MQTT topic
 	PayloadLen             int      `json:"payload_len"`              // Length limit for MQTT payload

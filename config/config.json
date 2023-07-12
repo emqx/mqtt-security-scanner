@@ -1,5 +1,6 @@
 {
   "broker": {
+    "tls": false,
     "host": "broker.emqx.io",
     "mqtt_port": 1883,
     "ws_port": 8083,
@@ -20,13 +21,13 @@
     "username_len": 65535,
     "password_len": 65535,
     "support_tls_versions": [
-      771,
-      772
+      "TLS1.3",
+      "TLS1.2"
     ],
     "unsupported_tls_versions": [
-      768,
-      769,
-      770
+      "TLS1.1",
+      "TLS1.0",
+      "SSL3.0"
     ],
     "flapping": 60,
     "topic_level": 16,

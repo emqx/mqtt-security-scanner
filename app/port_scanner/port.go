@@ -62,7 +62,6 @@ func PortScanner(host string, isBroker bool) []int {
 					continue
 				}
 				conn.Close()
-				fmt.Printf("%d open\n", port)
 				result = append(result, port)
 				wg.Done()
 			}
