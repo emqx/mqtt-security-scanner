@@ -12,8 +12,8 @@ import (
 	"mqtt-security-scanner/config"
 )
 
-// TLSMap Mapping between TLS versions and their string representations
-var TLSMap = map[uint16]string{768: "SSL3.0", 769: "TLS1.0", 770: "TLS1.1", 771: "TLS1.2", 772: "TLS1.3"}
+// TLSMap Mapping between string representations and TLS versions
+var TLSMap = map[string]uint16{"SSL3.0": 768, "TLS1.0": 769, "TLS1.1": 770, "TLS1.2": 771, "TLS1.3": 772}
 
 // InvalidMQTTProtocolScanner scans the broker to check if it supports invalid MQTT message format connections
 func InvalidMQTTProtocolScanner(cfg *config.Config) (*config.ScanItem, error) {
@@ -60,27 +60,35 @@ func TLSVersionsScanner(cfg *config.Config) (*config.ScanItem, error) {
 	satisfied := true
 	// Check if all the supported TLS protocol versions are actually supported
 	for _, version := range cfg.Limit.SupportTLSVersions {
-		ok, err := checkTLSVersion(cfg.BrokerInfo.Host, cfg.BrokerInfo.MQTTSPort, version)
+		tlsVersion, err := convertStringToUint16(version)
+		if err != nil {
+			return nil, err
+		}
+		ok, err := checkTLSVersion(cfg.BrokerInfo.Host, cfg.BrokerInfo.MQTTSPort, tlsVersion)
 		if err != nil {
 			return nil, err
 		}
 
 		if !ok {
 			satisfied = false
-			si.Message = append(si.Message, fmt.Sprintf("TLS version %s is not supported", TLSMap[version]))
+			si.Message = append(si.Message, fmt.Sprintf("TLS version %s is not supported", version))
 		}
 	}
 
 	// Check if all the unsupported TLS protocol versions are actually unsupported
 	for _, version := range cfg.Limit.UnsupportedTLSVersions {
-		ok, err := checkTLSVersion(cfg.BrokerInfo.Host, cfg.BrokerInfo.MQTTSPort, version)
+		tlsVersion, err := convertStringToUint16(version)
+		if err != nil {
+			return nil, err
+		}
+		ok, err := checkTLSVersion(cfg.BrokerInfo.Host, cfg.BrokerInfo.MQTTSPort, tlsVersion)
 		if err != nil {
 			return nil, err
 		}
 
 		if ok {
 			satisfied = false
-			si.Message = append(si.Message, fmt.Sprintf("Unsafe TLS version %s is support", TLSMap[version]))
+			si.Message = append(si.Message, fmt.Sprintf("Unsafe TLS version %s is support", version))
 		}
 	}
 
@@ -143,4 +151,13 @@ func checkTLSVersion(host string, port int, tlsVersion uint16) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// convertStringToUint16 converts the string representation of TLS protocol version to uint16
+func convertStringToUint16(version string) (uint16, error) {
+	tlsVersion, ok := TLSMap[strings.ToUpper(version)]
+	if !ok {
+		return 0, fmt.Errorf("unsupported TLS version: %s. Format is 'TLS1.x' or 'tls1.x'", version)
+	}
+	return tlsVersion, nil
 }
