@@ -30,6 +30,7 @@ type Config struct {
 }
 
 type BrokerInfo struct {
+	TLS        bool     `json:"tls"`         // Enable TLS checker or not
 	Host       string   `json:"host"`        // Broker's host address
 	MQTTPort   int      `json:"mqtt_port"`   // Port for MQTT protocol
 	MQTTSPort  int      `json:"mqtts_port"`  // Port for MQTT over SSL protocol

@@ -1,5 +1,6 @@
 {
   "broker": {
+    "tls": false,
     "host": "broker.emqx.io",
     "mqtt_port": 1883,
     "ws_port": 8083,
