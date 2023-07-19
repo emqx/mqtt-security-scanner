@@ -7,8 +7,6 @@ on:
         description: 'Tag name for this release'
         required: true
   push:
-    branches:
-      - main
     tags:
       - '*'
 
