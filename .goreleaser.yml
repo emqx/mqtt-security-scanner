@@ -1,0 +1,11 @@
+# .goreleaser.yaml
+archives:
+  - #
+    # Additional files/globs you want to add to the archive.
+    #
+    # Default: [ 'LICENSE*', 'README*', 'CHANGELOG', 'license*', 'readme*', 'changelog']
+    # Templates: allowed
+    files:
+      - LICENSE*
+      - README*
+      - config/config.json
