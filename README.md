@@ -6,14 +6,23 @@ MQTT Deployment Baseline Scanner is a MQTT deployment security baseline scanning
 
 
 ## Get Started
-Clone the repository and compile the Go program. Make sure to have your configuration JSON file ready. Run the program and pass your configuration file as a command line argument.
+
+Download `MQTT-Security-Scanner` from [Release](https://github.com/emqx/mqtt-security-scanner/releases).
+Make sure to have your configuration JSON file ready. Run the program and pass your configuration file as a command line argument.
 
 ``` bash
-git clone https://github.com/emqx/mqtt-security-scanner
+# example
+version="1.0.0"
+os="darwin"
+arch="arm64"
 
-cd mqtt-security-scanner
+wget "https://github.com/emqx/mqtt-security-scanner/releases/download/v${version}/mqtt-security-scanner_${version}_${os}_${arch}.tar.gz"
 
-go run main.go -config /path/to/config.json
+tar -xzvf mqtt-security-scanner_${version}_${os}_${arch}.tar.gz
+
+# modify config/config.json
+
+./mqtt-security-scanner -config=config/config.json
 ```
 Enjoy securing your MQTT deployments!
 
