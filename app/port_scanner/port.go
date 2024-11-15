@@ -10,7 +10,7 @@ import (
 )
 
 // Known MQTT ports
-var mqttPort = map[int]bool{1883: true, 8883: true, 8083: true, 8084: true}
+var mqttPort = map[int]bool{1883: true, 8883: true, 8083: true, 8084: true, 8443: true}
 
 // HostPortScan scans the broker for any additional open ports
 func HostPortScan(cfg *config.Config) (*config.ScanItem, error) {
