@@ -15,27 +15,26 @@ var mqttPort = map[int]bool{1883: true, 8883: true, 8083: true, 8084: true, 8443
 // HostPortScan scans the broker for any additional open ports
 func HostPortScan(cfg *config.Config) (*config.ScanItem, error) {
 	si := config.NewScanItem("Host Port Scan")
+	si.Pass = true
+	scan := func(host string, isBroker bool) {
+		result := PortScanner(host, isBroker)
+		if len(result) == 0 {
+			return
+		}
 
-	satisfied := true
-
-	// First, scan broker for any additional open ports
-	result := PortScanner(cfg.BrokerInfo.Host, true)
-	for _, port := range result {
-		satisfied = false
-		si.Message = append(si.Message, fmt.Sprintf("TCP port %d in host %s is open", port, cfg.BrokerInfo.Host))
-	}
-
-	// Then, scan agent
-	for _, host := range cfg.Hosts {
-		result := PortScanner(host, false)
-
+		si.Pass = false
 		for _, port := range result {
-			satisfied = false
 			si.Message = append(si.Message, fmt.Sprintf("TCP port %d in host %s is open", port, host))
 		}
 	}
 
-	si.Pass = satisfied
+	// Scan broker
+	scan(cfg.BrokerInfo.Host, true)
+	// scan agent
+	for _, host := range cfg.Hosts {
+		scan(host, false)
+	}
+
 	return si, nil
 }
 
@@ -45,35 +44,42 @@ func PortScanner(host string, isBroker bool) []int {
 	ports := make(chan int, numWorkers)
 
 	var wg sync.WaitGroup
+	var lk sync.Mutex
 	var result []int
+	wg.Add(numWorkers)
 	for i := 0; i < numWorkers; i++ {
 		go func() {
+			defer wg.Done()
+
+			openPorts := []int{}
 			for port := range ports {
 				_, ok := mqttPort[port]
 				if isBroker && ok {
-					wg.Done()
 					continue
 				}
 				address := fmt.Sprintf("%s:%d", host, port)
 				conn, err := net.DialTimeout("tcp", address, 1*time.Second)
 				if err != nil {
 					// the port is closed or filtered.
-					wg.Done()
 					continue
 				}
 				conn.Close()
-				result = append(result, port)
-				wg.Done()
+				openPorts = append(openPorts, port)
+			}
+
+			if len(openPorts) != 0 {
+				lk.Lock()
+				result = append(result, openPorts...)
+				lk.Unlock()
 			}
 		}()
 	}
 
 	for port := 1; port <= 65536; port++ {
-		wg.Add(1)
 		ports <- port
 	}
 
-	wg.Wait()
 	close(ports)
+	wg.Wait()
 	return result
 }
