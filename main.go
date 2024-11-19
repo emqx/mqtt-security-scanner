@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,37 +18,37 @@ type ScannerFunc func(*config.Config) (*config.ScanItem, error)
 
 func main() {
 	fReport := flag.String("r", "stdout", "report output type(stdout/file)")
-	configPath := flag.String("config", "config.json", "config address")
+	configPath := flag.String("config", "config/config.json", "config address")
 	flag.Parse()
 
 	// Initialize configuration
 	cfg := config.InitConfig(*configPath)
 
 	// Define items of scanners
-	scanners := []func(*config.Config) (*config.ScanItem, error){
+	scanners := map[string]ScannerFunc{
 		// protocol related scanner
-		mqtt_scanner.InvalidMQTTProtocolScanner,
-		mqtt_scanner.InvalidWSProtocolScanner,
+		"Invalid MQTT Message":       mqtt_scanner.InvalidMQTTProtocolScanner,
+		"Invalid Websocket Protocol": mqtt_scanner.InvalidWSProtocolScanner,
 
 		// MQTT client related scanner
-		mqtt_scanner.MQTTClientAuthentication,
-		mqtt_scanner.MQTTClientUsernameLength,
-		mqtt_scanner.MQTTClientPasswordLength,
-		mqtt_scanner.MQTTClientIDLength,
-		mqtt_scanner.MQTTClientFlapping,
+		"Client Authentication":       mqtt_scanner.MQTTClientAuthentication,
+		"MQTT Client Username Length": mqtt_scanner.MQTTClientUsernameLength,
+		"MQTT Client password Length": mqtt_scanner.MQTTClientPasswordLength,
+		"MQTT Client ID Length":       mqtt_scanner.MQTTClientIDLength,
+		"MQTT Client Flapping":        mqtt_scanner.MQTTClientFlapping,
 
 		// MQTT message related scanner
-		mqtt_scanner.MQTTTopicLevel,
-		mqtt_scanner.MQTTTopicLength,
-		mqtt_scanner.MQTTMessagePayloadLength,
+		"MQTT Topic Level":            mqtt_scanner.MQTTTopicLevel,
+		"MQTT Topic Length":           mqtt_scanner.MQTTTopicLength,
+		"MQTT Message Payload Length": mqtt_scanner.MQTTMessagePayloadLength,
 
 		// port scanner
-		port_scanner.HostPortScan,
+		"Host Port Scan": port_scanner.HostPortScan,
 	}
 
 	// Set tls scanner
 	if cfg.BrokerInfo.TLS {
-		scanners = append(scanners, mqtt_scanner.TLSVersionsScanner)
+		scanners["TLS Version"] = mqtt_scanner.TLSVersionsScanner
 	}
 
 	// Create a buffered channel to store the results of each scan
@@ -57,18 +58,11 @@ func main() {
 	// Launch each scanner in separate goroutine
 	var wg sync.WaitGroup
 	wg.Add(scannerNum)
-	for _, scanner := range scanners {
-		go func(scanner ScannerFunc) {
+	for name, scanner := range scanners {
+		go func(name string, scanner ScannerFunc) {
 			defer wg.Done()
-
-			si, err := scanner(cfg)
-			// If a scanner returns an error, panic
-			if err != nil {
-				errMsg := fmt.Sprintf("Failed to execute scanner item [%s], %v", si.Name, err)
-				panic(errMsg)
-			}
-			results <- si
-		}(scanner)
+			results <- runScanner(cfg, name, scanner)
+		}(name, scanner)
 	}
 
 	// Record the starting time and wait for all scans to complete
@@ -76,21 +70,24 @@ func main() {
 	wg.Wait()
 
 	// Delay execute MQTT client connection scanner, because it will affect other scanners
-	func(scanner ScannerFunc) {
-		si, err := scanner(cfg)
-		// If a scanner returns an error, panic
-		if err != nil {
-			errMsg := fmt.Sprintf("Failed to execute scanner item [%s], %v", si.Name, err)
-			panic(errMsg)
-		}
-		results <- si
-	}(mqtt_scanner.MQTTClientConnection)
+	results <- runScanner(cfg, "MQTT Client Connection", mqtt_scanner.MQTTClientConnection)
 
 	close(results)
-	fmt.Println(time.Since(start))
 
+	fmt.Println(time.Since(start))
 	// Output results based on the chosen mode
 	output(results, *fReport)
+}
+
+func runScanner(cfg *config.Config, name string, scanner ScannerFunc) *config.ScanItem {
+	fmt.Printf("Start running scanner item [%s]\n", name)
+	si, err := scanner(cfg)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to execute scanner item [%s], %v", name, err)
+		panic(errMsg)
+	}
+	fmt.Printf("Finish running scanner item [%s]\n", name)
+	return si
 }
 
 // 'output' function takes a channel of scan results and a mode string, it supports 'stdout' and 'file' mode
@@ -100,7 +97,7 @@ func output(results chan *config.ScanItem, mode string) {
 	var buf bytes.Buffer
 	for si := range results {
 		if !si.Pass {
-			buf.WriteString(fmt.Sprintf("[%s]\t do not pass, %v\n", si.Name, si.Message))
+			buf.WriteString(fmt.Sprintf("[%s]\t do not pass: %s\n", si.Name, strings.Join(si.Message, ", ")))
 			continue
 		}
 		buf.WriteString(fmt.Sprintf("[%s]\t pass\n", si.Name))

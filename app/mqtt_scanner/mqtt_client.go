@@ -3,6 +3,7 @@ package mqtt_scanner
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -84,11 +85,9 @@ func MQTTClientUsernameLength(cfg *config.Config) (*config.ScanItem, error) {
 		return si, nil
 	}
 
-	if token.Error() != nil {
-		if !strings.Contains(token.Error().Error(), "connection reset by peer") {
-			si.Message = append(si.Message, fmt.Sprintf("MQTT client username length limit does not work, %v", token.Error()))
-			return si, nil
-		}
+	if token.Error() != nil && !errors.Is(token.Error(), io.EOF) {
+		si.Message = append(si.Message, fmt.Sprintf("MQTT client username length limit does not work, error: %v", token.Error()))
+		return si, nil
 	}
 
 	si.Pass = true
@@ -114,11 +113,9 @@ func MQTTClientPasswordLength(cfg *config.Config) (*config.ScanItem, error) {
 		return si, nil
 	}
 
-	if token.Error() != nil {
-		if !strings.Contains(token.Error().Error(), "connection reset by peer") {
-			si.Message = append(si.Message, fmt.Sprintf("MQTT client password length limit does not work, %v", token.Error()))
-			return si, nil
-		}
+	if token.Error() != nil && !errors.Is(token.Error(), io.EOF) {
+		si.Message = append(si.Message, fmt.Sprintf("MQTT client password length limit does not work, error: %v", token.Error()))
+		return si, nil
 	}
 
 	si.Pass = true
