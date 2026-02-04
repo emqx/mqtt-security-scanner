@@ -65,8 +65,6 @@ MQTT Security Baseline Scanner performs scans under the following categories:
 
 ### Client
 - **Client Authentication:** Checks the client connections with valid, no and wrong username/password.
-- **Client Username Length:** Checks if a client with an excessive username length can connect to the MQTT broker.
-- **Client Password Length:** Checks if a client with an excessive password length can connect to the MQTT broker.
 - **Client ID Length:** Checks if a client with an excessive ID length can connect to the MQTT broker.
 - **Client Flapping:** Checks if a client is added to a blacklist after frequent connect/disconnect cycles, also known as flapping.
 - **Client Connection:** Tests the maximum number of concurrent connections a MQTT broker can handle.
@@ -74,7 +72,6 @@ MQTT Security Baseline Scanner performs scans under the following categories:
 ### Message
 - **Deny Topic:** Checks if the MQTT broker denies messages to certain topics specified in the configuration.
 - **Topic Level:** Checks if the MQTT broker supports a topic with more levels than the defined limit.
-- **Topic Length:** Checks if the MQTT broker supports a topic length larger than the specified limit.
 - **Message Payload Length:** Checks if the MQTT broker can support a message payload length larger than the specified limit.
 
 ### Port
