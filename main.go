@@ -31,15 +31,12 @@ func main() {
 		"Invalid Websocket Protocol": mqtt_scanner.InvalidWSProtocolScanner,
 
 		// MQTT client related scanner
-		"Client Authentication":       mqtt_scanner.MQTTClientAuthentication,
-		"MQTT Client Username Length": mqtt_scanner.MQTTClientUsernameLength,
-		"MQTT Client password Length": mqtt_scanner.MQTTClientPasswordLength,
-		"MQTT Client ID Length":       mqtt_scanner.MQTTClientIDLength,
-		"MQTT Client Flapping":        mqtt_scanner.MQTTClientFlapping,
+		"Client Authentication": mqtt_scanner.MQTTClientAuthentication,
+		"MQTT Client ID Length": mqtt_scanner.MQTTClientIDLength,
+		"MQTT Client Flapping":  mqtt_scanner.MQTTClientFlapping,
 
 		// MQTT message related scanner
 		"MQTT Topic Level":            mqtt_scanner.MQTTTopicLevel,
-		"MQTT Topic Length":           mqtt_scanner.MQTTTopicLength,
 		"MQTT Message Payload Length": mqtt_scanner.MQTTMessagePayloadLength,
 
 		// port scanner
